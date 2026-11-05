@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+  labels:
+    app: web-app
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+        version: v3-broken
+    spec:
+      containers:
+      - name: web-app
+        # Non-existent image tag to demonstrate ImagePullBackOff / failed rollout
+        image: devops-microservice:3.0.0-nonexistent-tag
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+

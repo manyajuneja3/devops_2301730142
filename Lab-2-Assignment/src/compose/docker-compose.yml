@@ -1,0 +1,59 @@
+﻿# ========================================================
+# DevOps Lab 2 - Multi-Container Docker Compose Setup
+# Candidate: Manya Juneja | Roll No: 2301730142 | manyajuneja03@gmail.com
+# ========================================================
+services:
+  web-app:
+    build:
+      context: ../app
+      dockerfile: Dockerfile
+    image: manyajuneja3/devops-microservice:1.0.0
+    container_name: web-app-container
+    ports:
+      - "5000:5000"
+    environment:
+      - STUDENT_NAME=Manya Juneja
+      - STUDENT_ROLL=2301730142
+      - STUDENT_EMAIL=manyajuneja03@gmail.com
+      - APP_ENV=production
+      - APP_VERSION=1.0.0
+      - REDIS_HOST=cache-service
+      - REDIS_PORT=6379
+      - PORT=5000
+    depends_on:
+      cache-service:
+        condition: service_healthy
+    networks:
+      - app-tier-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+
+  cache-service:
+    image: redis:7.2-alpine
+    container_name: redis-cache-container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data-volume:/data
+    networks:
+      - app-tier-network
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+networks:
+  app-tier-network:
+    driver: bridge
+    name: custom-devops-net
+
+volumes:
+  redis-data-volume:
+    name: custom-redis-storage

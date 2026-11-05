@@ -1,0 +1,6 @@
+﻿---
+# Lab 3: Monitoring, Logging & DevSecOps
+# Student: Manya Juneja | Roll No: 2301730142 | Email: manyajuneja03@gmail.com
+application_dir: /opt/lab3-monitoring
+application_repository: https://github.com/manyajuneja3/DevOps-Assignment.git
+application_version: main

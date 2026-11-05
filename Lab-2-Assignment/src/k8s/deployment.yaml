@@ -1,0 +1,74 @@
+﻿# ========================================================
+# DevOps Lab 2 - Kubernetes Deployment Manifest
+# Candidate: Manya Juneja | Roll No: 2301730142 | manyajuneja03@gmail.com
+# ========================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+  labels:
+    app: web-app
+    tier: frontend
+    maintainer: manya-2301730142
+  annotations:
+    candidate.name: "Manya Juneja"
+    candidate.roll: "2301730142"
+    candidate.email: "manyajuneja03@gmail.com"
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+        version: v1
+        author: manya-2301730142
+    spec:
+      containers:
+      - name: web-app
+        image: manyajuneja3/devops-microservice:1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: APP_VERSION
+          value: "1.0.0"
+        - name: STUDENT_NAME
+          value: "Manya Juneja"
+        - name: STUDENT_ROLL
+          value: "2301730142"
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ENVIRONMENT
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3

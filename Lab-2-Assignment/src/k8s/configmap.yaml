@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: web-app
+data:
+  ENVIRONMENT: "production-minikube"
+  LOG_LEVEL: "INFO"
+  FEATURE_FLAGS: "metrics_enabled,analytics_v2"
+

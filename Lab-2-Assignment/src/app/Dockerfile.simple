@@ -1,0 +1,28 @@
+# ==========================================
+# DevOps Lab 2 - Standard Single-Stage Dockerfile
+# Used for Image Layer & Build Analysis
+# ==========================================
+FROM python:3.11-slim
+
+# Layer 1: Working directory
+WORKDIR /app
+
+# Layer 2: Copy requirements manifest (optimizes layer caching)
+COPY requirements.txt .
+
+# Layer 3: Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Layer 4: Copy application source code
+COPY app.py .
+
+# Environment configuration
+ENV PORT=5000 \
+    APP_VERSION=1.0.0
+
+# Layer 5: Expose application port
+EXPOSE 5000
+
+# Container entrypoint
+CMD ["python", "app.py"]
+

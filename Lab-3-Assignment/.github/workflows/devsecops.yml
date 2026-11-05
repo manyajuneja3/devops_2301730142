@@ -1,0 +1,46 @@
+﻿# Lab 3: Monitoring, Logging & DevSecOps - CI/CD Pipeline
+# Student: Manya Juneja | Roll No: 2301730142 | Email: manyajuneja03@gmail.com
+name: DevSecOps pipeline
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+      - name: Start application under test
+        run: docker compose up -d --build demo-app
+      - name: Wait for application health
+        run: |
+          for attempt in {1..20}; do
+            curl --fail http://localhost:8080/health && exit 0
+            sleep 2
+          done
+          exit 1
+      - name: Run Selenium tests
+        run: pytest tests/e2e -q
+      - name: Dependency vulnerability scan
+        run: pip install pip-audit && pip-audit -r app/requirements.txt
+      - name: Static security scan
+        uses: returntocorp/semgrep-action@v1
+        with: {config: p/security-audit}
+      - name: Container filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Stop application
+        if: always()
+        run: docker compose down -v

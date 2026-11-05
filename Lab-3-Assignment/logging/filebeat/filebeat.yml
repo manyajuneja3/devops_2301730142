@@ -1,0 +1,10 @@
+﻿# Lab 3: Monitoring, Logging & DevSecOps - Filebeat Configuration
+# Student: Manya Juneja | Roll No: 2301730142 | Email: manyajuneja03@gmail.com
+filebeat.inputs:
+  - type: container
+    paths: ["/var/lib/docker/containers/*/*.log"]
+    processors:
+      - add_docker_metadata: ~
+
+output.logstash:
+  hosts: ["logstash:5044"]
